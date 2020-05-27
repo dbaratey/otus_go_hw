@@ -1,4 +1,4 @@
-module github.com/dbaratey/otus_go_hw/tree/master/hw01_hello_now
+module github.com/dbaratey/otus_go_hw/tree/hw01_hello_now
 
 go 1.14
 
