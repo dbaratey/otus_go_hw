@@ -1,4 +1,4 @@
-module github.com/fixme_my_friend/hw02_unpack_string
+module github.com/dbaratey/otus_go_hw/hw01_hello_now
 
 go 1.14
 
