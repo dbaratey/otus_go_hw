@@ -2,7 +2,7 @@ package hw02_unpack_string //nolint:golint,stylecheck
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"strconv"
 	"unicode"
 )
@@ -17,40 +17,14 @@ func Unpack(s string) (string, error) {
 	res := []rune{}
 	for i, el := range s {
 		if unicode.IsDigit(el) {
-			switch {
-			case prevRune == 0:
-				return "", ErrInvalidString
-			case prevRune == '\\' && isEscaped == 0:
-				res = append(res, el)
-				isEscaped = i
-			case unicode.IsDigit(prevRune):
-				if isEscaped != 0 {
-					res, err = repeatRune(el, res, prevRune)
-					if err != nil {
-						log.Fatal(string(el), " is not digit")
-					}
-				} else {
-					return "", ErrInvalidString
-				}
-
-			default:
-				res, err = repeatRune(el, res, prevRune)
-				if err != nil {
-					log.Fatal(string(el), " is not digit")
-				}
+			res, err = workDigit(prevRune, &isEscaped, res, el, i)
+			if err != nil {
+				return "", err
 			}
 		} else {
-			switch el {
-			case '\\':
-				if prevRune == '\\' && isEscaped == 0 {
-					res = append(res, el)
-					isEscaped = i
-				}
-			default:
-				if prevRune == '\\' {
-					return "", ErrInvalidString
-				}
-				res = append(res, el)
+			res, err = workOthers(el, prevRune, &isEscaped, res, i)
+			if err != nil {
+				return "", err
 			}
 		}
 		if isEscaped != 0 && isEscaped < i {
@@ -59,6 +33,50 @@ func Unpack(s string) (string, error) {
 		prevRune = el
 	}
 	return string(res), nil
+}
+
+func workOthers(el int32, prevRune rune, isEscaped *int, res []rune, i int) ([]rune, error) {
+	switch el {
+	case '\\':
+		if prevRune == '\\' && *isEscaped == 0 {
+			res = append(res, el)
+			*isEscaped = i
+		}
+		return res, nil
+	default:
+		if prevRune == '\\' {
+			return res, ErrInvalidString
+		}
+		res = append(res, el)
+		return res, nil
+	}
+}
+
+func workDigit(prevRune rune, isEscaped *int, res []rune, el int32, i int) ([]rune, error) {
+	switch {
+	case prevRune == 0:
+		return res, ErrInvalidString
+	case prevRune == '\\' && *isEscaped == 0:
+		res = append(res, el)
+		*isEscaped = i
+		return res, nil
+	case unicode.IsDigit(prevRune):
+		if *isEscaped != 0 {
+			res, err := repeatRune(el, res, prevRune)
+			if err != nil {
+				return res, fmt.Errorf("%c is not digit", el)
+			}
+			return res, nil
+		}
+		return res, ErrInvalidString
+
+	default:
+		res, err := repeatRune(el, res, prevRune)
+		if err != nil {
+			return res, fmt.Errorf("%c is not digit", el)
+		}
+		return res, nil
+	}
 }
 
 func repeatRune(el int32, res []rune, prevRune rune) ([]rune, error) {

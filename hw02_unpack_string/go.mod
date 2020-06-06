@@ -1,4 +1,4 @@
-module github.com/dbaratey/otus_go_hw/hw02_hello_now
+module github.com/dbaratey/otus_go_hw/hw02_unpack_string
 
 go 1.14
 
