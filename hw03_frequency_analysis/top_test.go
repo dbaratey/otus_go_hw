@@ -6,9 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Change to true if needed
-var taskWithAsteriskIsCompleted = false
-
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
 	ступеньки собственным затылком:  бум-бум-бум.  Другого  способа
@@ -43,18 +40,59 @@ var text = `Как видите, он  спускается  по  лестни�
 	посидеть у огня и послушать какую-нибудь интересную сказку.
 		В этот вечер...`
 
+var text_with_spaces = "bbbaaa aaa  bbb   aaa aaa  _-.   bbb _-. _-. _-."
+var text_cmp_word = "нога:) нога  нога,   но-га ^нога^"
+
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		assert.Len(t, Top10(""), 0)
+		assert.Len(t, Top10("", false), 0)
 	})
-
+	t.Run("* no words in empty string", func(t *testing.T) {
+		assert.Len(t, Top10("", true), 0)
+	})
+	t.Run("different spaces", func(t *testing.T) {
+		expected := []string{"_-.", "aaa", "bbb", "bbbaaa"}
+		assert.Subset(t, expected, Top10(text_with_spaces, false))
+	})
+	t.Run("*special in words", func(t *testing.T) {
+		expected := []string{"нога", "но-га", "^нога^"}
+		assert.ElementsMatch(t, expected, Top10(text_cmp_word, true))
+	})
 	t.Run("positive test", func(t *testing.T) {
-		if taskWithAsteriskIsCompleted {
-			expected := []string{"он", "а", "и", "что", "ты", "не", "если", "то", "его", "кристофер", "робин", "в"}
-			assert.Subset(t, expected, Top10(text))
-		} else {
-			expected := []string{"он", "и", "а", "что", "ты", "не", "если", "-", "то", "Кристофер"}
-			assert.ElementsMatch(t, expected, Top10(text))
-		}
+		expected := []string{"он", "и", "а", "что", "ты", "не", "если", "-", "то", "Кристофер"}
+		assert.ElementsMatch(t, expected, Top10(text, false))
 	})
+	t.Run("* positive test", func(t *testing.T) {
+		expected := []string{"он", "а", "и", "что", "ты", "не", "если", "то", "его", "кристофер", "робин", "в"}
+		assert.Subset(t, expected, Top10(text, true))
+	})
+}
+
+func TestNormalize(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			name: "sumb ...",
+			args: args{s: "!@#$%^&*()_-...:`\""},
+			want: "@#$%^&*_-`",
+		},
+		{
+			name: "between",
+			args: args{s: "но-га"},
+			want: "но-га",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := normalize(tt.args.s); got != tt.want {
+				t.Errorf("normalize() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
