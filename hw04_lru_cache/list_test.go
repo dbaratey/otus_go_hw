@@ -9,15 +9,53 @@ import (
 func TestList(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
 		l := NewList()
-
 		require.Equal(t, l.Len(), 0)
 		require.Nil(t, l.Front())
 		require.Nil(t, l.Back())
 	})
-
+	t.Run("add first(single)", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("3")
+		require.Equal(t, l.Front(), l.Back())
+	})
+	t.Run("remove first(single)", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("3")
+		l.Remove(l.Front())
+		require.Nil(t, l.Front())
+		require.Nil(t, l.Back())
+	})
+	t.Run("add last", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("1")
+		l.PushFront("2")
+		l.PushFront("3")
+		l.PushBack("5")
+		require.Equal(t, "5", l.Back().Value)
+		require.Equal(t, "1", l.Back().Prev.Value)
+		require.Nil(t, l.Back().Next)
+	})
+	t.Run("remove middle", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("1")
+		l.PushFront("2")
+		l.PushFront("3")
+		l.Remove(l.Front().Next)
+		require.Equal(t, "3", l.Front().Value)
+		require.Equal(t, "1", l.Front().Next.Value)
+		require.Equal(t, "1", l.Back().Value)
+		require.Equal(t, "3", l.Back().Prev.Value)
+	})
+	t.Run("remove last", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("3")
+		l.PushBack("5")
+		l.Remove(l.Back())
+		require.Equal(t, "3", l.Front().Value)
+		require.Equal(t, "3", l.Back().Value)
+	})
 	t.Run("complex", func(t *testing.T) {
 		l := NewList()
-
 		l.PushFront(10) // [10]
 		l.PushBack(20)  // [10, 20]
 		l.PushBack(30)  // [10, 20, 30]

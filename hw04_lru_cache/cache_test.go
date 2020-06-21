@@ -50,12 +50,43 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		c := NewCache(5)
+		c.Set("0", "0")
+		c.Set("1", "1")
+		c.Set("2", "2")
+		c.Set("3", "3")
+		c.Set("4", "4")
+		// Purge 0 for cap
+		c.Set("5", "5")
+		//
+		_, ok := c.Get("0")
+		require.False(t, ok)
+		wg := sync.WaitGroup{}
+		wg.Add(2)
+		go func() {
+			for i := 0; i < 5; i++ {
+				c.Get(Key(strconv.Itoa(i)))
+			}
+			wg.Done()
+		}()
+		go func() {
+			for i := 0; i < 5; i++ {
+				c.Set(Key(strconv.Itoa(i)), strconv.Itoa(rand.Intn(1000)))
+			}
+			wg.Done()
+		}()
+		wg.Wait()
+		c.Set("6", "6")
+		// Purge 5 for unused
+		_, ok = c.Get("6")
+		require.True(t, ok)
+		_, ok = c.Get("5")
+		require.False(t, ok)
 	})
 }
 
 func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove if task with asterisk completed
+	//t.Skip() // Remove if task with asterisk completed
 
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
