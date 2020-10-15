@@ -71,9 +71,11 @@ func (l *lruCache) Get(key Key) (interface{}, bool) {
 	if v, ok := l.items.get(key); ok {
 		l.queue.MoveToFront(v.el)
 		l.Unlock()
+
 		return v.Val(), true
 	}
 	l.Unlock()
+
 	return nil, false
 }
 
@@ -94,6 +96,7 @@ func (ci *cacheItem) Val() interface{} {
 	ci.mu.RLock()
 	res := ci.value
 	ci.mu.RUnlock()
+
 	return res
 }
 
