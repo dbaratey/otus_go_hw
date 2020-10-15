@@ -104,6 +104,7 @@ func (ci *cacheItem) El() *listItem {
 	ci.mu.RUnlock()
 	res := ci.el
 	ci.mu.RUnlock()
+
 	return res
 }
 
