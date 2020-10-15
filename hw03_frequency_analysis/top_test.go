@@ -41,7 +41,7 @@ var text = `Как видите, он  спускается  по  лестни�
 		В этот вечер...`
 
 var text_with_spaces = "bbbaaa aaa  bbb   aaa aaa  _-.   bbb _-. _-. _-."
-var text_cmp_word = "нога:) нога  нога,   но-га ^нога^"
+var text_cmp_word = "нога:) нога  нога,   но-г^нога^"
 
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
