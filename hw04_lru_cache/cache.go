@@ -47,6 +47,7 @@ func (rwm *RWMap) get(key Key) (*cacheItem, bool) {
 	rwm.mu.RLock()
 	v, ok := rwm.m[key]
 	rwm.mu.RUnlock()
+
 	return v, ok
 }
 
@@ -61,6 +62,7 @@ func (l *lruCache) Set(key Key, value interface{}) bool {
 	l.Lock()
 	_, ok := l.items.store(key, value, &l.queue, l.capacity)
 	l.Unlock()
+
 	return ok
 }
 
