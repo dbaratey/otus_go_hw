@@ -1,6 +1,7 @@
 package hw05_parallel_execution //nolint:golint,stylecheck
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"sync/atomic"
@@ -65,5 +66,27 @@ func TestRun(t *testing.T) {
 
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
+	})
+	t.Run("if_M_0_allways_err", func(t *testing.T) {
+		tasksCount := 50
+		tasks := make([]Task, 0, tasksCount)
+
+		var runTasksCount int32
+
+		for i := 0; i < tasksCount; i++ {
+			tasks = append(tasks, func() error {
+				atomic.AddInt32(&runTasksCount, 1)
+				return nil
+			})
+
+			maxErrorsCount := 0
+
+			for i := 0; i < 100; i++ {
+				workersCount := i + 1
+				result := Run(tasks, workersCount, maxErrorsCount)
+				require.Equal(t, result, errors.New("errors limit exceeded"))
+			}
+		}
+
 	})
 }
