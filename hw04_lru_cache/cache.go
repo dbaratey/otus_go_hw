@@ -39,6 +39,7 @@ func (rwm *RWMap) store(key Key, val interface{}, queue *list, capacity int) (*c
 		p = rwm.m[key]
 	}
 	rwm.mu.Unlock()
+
 	return p, ok
 }
 
